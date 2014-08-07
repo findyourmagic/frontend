@@ -1,44 +1,80 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="renderer" content="webkit">
+<meta name="description" content="前端开发同学的技能树" />
+<meta name="keywords" content="前端开发,技能树,知识体系"/>
+ <meta name ="viewport" content ="initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no">
+<title>前端开发知识体系</title>
+</head>
+<style>
 
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
 
-    <title>Frontend by findyourmagic</title>
-  </head>
+.node {
+  font: 13px sans-serif;
+}
 
-  <body>
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
 
-    <header>
-      <div class="container">
-        <h1>Frontend</h1>
-        <h2></h2>
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
 
-        <section id="downloads">
-          <a href="https://github.com/findyourmagic/frontend/zipball/master" class="btn">Download as .zip</a>
-          <a href="https://github.com/findyourmagic/frontend/tarball/master" class="btn">Download as .tar.gz</a>
-          <a href="https://github.com/findyourmagic/frontend" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
-        </section>
-      </div>
-    </header>
+var diameter = 960;
 
-    <div class="container">
-      <section id="main_content">
-        <h1>
-<a name="%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%E6%8A%80%E8%83%BD%E6%A0%91" class="anchor" href="#%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%E6%8A%80%E8%83%BD%E6%A0%91"><span class="octicon octicon-link"></span></a>前端开发技能树</h1>
+var tree = d3.layout.tree()
+    // .size([360, diameter / 2 - 120])
+    .size([360, diameter / 2 - 240])
+    .separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
 
-<p>用D3做了个简单的可视化版方便大家共同维护</p>
+var diagonal = d3.svg.diagonal.radial()
+    .projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
 
-<p>原始资料来自：</p>
+var svg = d3.select("body").append("svg")
+    .attr("width", diameter + 280)
+    .attr("height", diameter)
+  .append("g")
+    .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
 
-<p><a href="https://github.com/JacksonTian/fks">https://github.com/JacksonTian/fks</a></p>
-      </section>
-    </div>
+d3.json("skills.json", function(error, root) {
+  var nodes = tree.nodes(root),
+      links = tree.links(nodes);
 
-    
-  </body>
+  var link = svg.selectAll(".link")
+      .data(links)
+    .enter().append("path")
+      .attr("class", "link")
+      .attr("d", diagonal);
+
+  var node = svg.selectAll(".node")
+      .data(nodes)
+    .enter().append("g")
+      .attr("class", "node")
+      .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
+
+  node.append("circle")
+      .attr("r", 4.5);
+
+  node.append("text")
+      .attr("dy", ".31em")
+      .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
+      .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
+      .text(function(d) { return d.name; });
+});
+
+d3.select(self.frameElement).style("height", diameter - 150 + "px");
+
+</script>
+</body>
 </html>
